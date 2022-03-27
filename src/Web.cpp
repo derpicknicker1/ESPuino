@@ -990,6 +990,8 @@ void explorerHandleDownloadRequest(AsyncWebServerRequest *request) {
         return thisSize;
     });
     String filename = String(param->value().c_str());
+    if(filename.startsWith("/"))
+       filename =  filename.substring(1);
     response->addHeader("Content-Disposition","attachment; filename=\"" + filename + "\"");
     request->send(response);
 }   
