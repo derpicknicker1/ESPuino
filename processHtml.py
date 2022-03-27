@@ -7,6 +7,7 @@
 # html file base names
 import requests
 import argparse
+import sys
 
 def str2bool(v):
     if isinstance(v, bool):
@@ -28,7 +29,7 @@ class htmlHeaderProcessor(object):
     def minifyHTML(self, filename):
         with open('html/' + filename + '.html', 'r') as r:
             data = r.read()
-            return requests.post('https://html-minifier.com/raw', data=dict(input=data)).text.encode('utf8')
+            return requests.post('https://html-minifier.com/raw', data=dict(input=data)).text
 
     def escape_html(self, data):
         data = data.replace('\n', '\\\n')
@@ -59,7 +60,7 @@ class htmlHeaderProcessor(object):
         parser.add_argument("--minify", type=str2bool, nargs='?',
                             const=True, default=False,
                             help="Minify HTML Code")
-        args = parser.parse_args()
+        args, unknown = parser.parse_known_args()
 
         for file in HTML_FILES:
             if args.minify:
@@ -71,4 +72,10 @@ class htmlHeaderProcessor(object):
             self.write_header_file(file, self.header_file_content)
 
 if __name__ == '__main__':
+    htmlHeaderProcessor().main()
+elif __name__ == 'SCons.Script':
+    Import("env")
+    print(env['BUILD_FLAGS'])
+    if '-DMINIFY' in env['BUILD_FLAGS']:
+        sys.argv.append('--minify')
     htmlHeaderProcessor().main()
