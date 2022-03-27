@@ -1,6 +1,7 @@
 #ifndef __ESPUINO_SETTINGS_LOLIN_D32_PRO_H__
 #define __ESPUINO_SETTINGS_LOLIN_D32_PRO_H__
     #include "Arduino.h"
+    #include "settings.h"
 
     //######################### INFOS ####################################
     /* This is a PCB-specific config-file for *Wemos Lolin32 D32 pro with port-expander PCA9555PW and SD_MMC*.
@@ -88,9 +89,9 @@
     #define WAKEUP_BUTTON                   36          // Defines the button that is used to wake up ESPuino from deepsleep; set to 99 to disable
 
     // Power-control
-    #define POWER                           32          // GPIO used to drive transistor-circuit, that switches off peripheral devices while ESP32-deepsleep
+    #define POWER                           115          // GPIO used to drive transistor-circuit, that switches off peripheral devices while ESP32-deepsleep
     #ifdef POWER
-        //#define INVERT_POWER                          // If enabled, use inverted logic for POWER circuit, that means peripherals are turned off by writing HIGH
+        #define INVERT_POWER                          // If enabled, use inverted logic for POWER circuit, that means peripherals are turned off by writing HIGH
     #endif
 
     // (optional) Neopixel
@@ -105,8 +106,8 @@
     // (optional) Monitoring of battery-voltage via ADC
     #ifdef MEASURE_BATTERY_VOLTAGE
         #define VOLTAGE_READ_PIN            35          // GPIO used to monitor battery-voltage. Don't change, it's built in
-        constexpr float referenceVoltage = 3.30;        // Voltage between 3.3V and GND-pin at the develboard in battery-mode (disconnect USB!)
-        constexpr float offsetVoltage = 0.1;            // If voltage measured by ESP isn't 100% accurate, you can add an correction-value here
+        constexpr float referenceVoltage = 3.307;        // Voltage between 3.3V and GND-pin at the develboard in battery-mode (disconnect USB!)
+        constexpr float offsetVoltage = 0.25;            // If voltage measured by ESP isn't 100% accurate, you can add an correction-value here
     #endif
 
     // (optional) For measuring battery-voltage a voltage-divider is already onboard. Connect a LiPo and use it!
