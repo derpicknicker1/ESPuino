@@ -861,13 +861,8 @@ static const char management_HTML[] PROGMEM = "<!DOCTYPE html>\
 	}\
 \
 	function deleteChildrenNodes(nodeId) {\
-		var ref = $('#explorerTree').jstree(true);\
-		var children = $(\"#explorerTree\").jstree(\"get_children_dom\",nodeId);\
-		for(var i=0;i<children.length;i++)\
-		{\
-			ref.delete_node(children[i].id);\
-		}\
-\
+        var children = $(\"#explorerTree\").jstree(true).get_node(nodeId).children;\
+        $(\"#explorerTree\").jstree(true).delete_node(children);\
 	}\
 \
 	function refreshNode(nodeId) {\
