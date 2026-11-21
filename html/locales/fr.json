@@ -307,7 +307,8 @@
 					"14": "🎲📁🔀 Toutes les pistes d'un sous-répertoire aléatoire (aléatoire)",
 					"8": "📻 Webradio",
 					"11": "📃 Liste (fichiers de la carte SD et/ou flux web) à partir d'un fichier .m3u local",
-					"18": "🌐 MediaHub (contenu/mode fourni par le serveur média sélectionné)"
+					"18": "🌐 MediaHub (contenu/mode fourni par le serveur média sélectionné)",
+					"19": "🎄 Calendrier de l'Avent (un chapitre par jour ; le fichier ou dossier commence par le numéro du jour)"
 				},
 				"error": "Mode de lecture invalide"
 			},
@@ -646,6 +647,19 @@
 			"recDepth": "Profondeur de récursion maximale lors de la génération de playlists récursives",
 			"sortModeExp": "Définit comment les fichiers et playlists sont triés : tri alphabétique standard (par ex. '10' avant '2') ou tri naturel, qui ordonne correctement les nombres dans les noms (par ex. '2' avant '10'), avec ou sans distinction majuscules/minuscules.",
 			"recDepthExp": "Profondeur maximale de répertoire explorée lors de la génération de playlists récursives à partir de sous-dossiers."
+		},
+		"advent": {
+			"title": "Calendrier de l'Avent",
+			"unlockHour": "Heure à partir de laquelle le chapitre du jour est débloqué (heure, 0–23)",
+			"unlockHourExp": "En décembre, le chapitre du jour s'ouvre à cette heure ; avant, seuls les chapitres des jours passés sont ouverts. De janvier à novembre, tous les chapitres sont ouverts. La date et l'heure viennent du NTP via le WiFi et continuent en veille profonde, mais sont perdues en cas de coupure de courant.",
+			"soundTimeUnknown": "Jouer l'annonce « heure inconnue »",
+			"soundTimeUnknownExp": "Lorsque le calendrier de l'Avent est posé mais que l'heure est inconnue (pas de connexion WiFi depuis la mise sous tension), les LED clignotent en rouge. Si cette option est active, l'annonce est jouée en plus.",
+			"fileTimeUnknown": "Fichier d'annonce",
+			"fileTimeUnknownExp": "Chemin du fichier sur la carte SD, par ex. un fichier du dossier 'announcements' du projet ESPuino.",
+			"soundLocked": "Jouer l'annonce « case encore fermée »",
+			"soundLockedExp": "Lorsqu'aucun chapitre n'est encore ouvert ou lorsqu'on avance au-delà du chapitre du jour, les LED clignotent en rouge. Si cette option est active, l'annonce est jouée en plus.",
+			"fileLocked": "Fichier d'annonce",
+			"fileLockedExp": "Chemin du fichier sur la carte SD, par ex. un fichier du dossier 'announcements' du projet ESPuino."
 		},
 		"tabs": {
 			"playback": "Lecture",

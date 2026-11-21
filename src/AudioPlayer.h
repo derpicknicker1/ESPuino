@@ -99,6 +99,7 @@ void AudioPlayer_ArmRfidResetOnIdle(void);
 void AudioPlayer_PauseOnMinVolume(const uint8_t oldVolume, const uint8_t newVolume);
 
 playlistSortMode AudioPlayer_GetPlaylistSortMode(void);
+void AudioPlayer_SortPlaylist(Playlist *playlist); // sorts by the configured sort mode
 bool AudioPlayer_SetPlaylistSortMode(playlistSortMode value);
 bool AudioPlayer_SetPlaylistSortMode(uint8_t value);
 uint8_t AudioPlayer_GetCurrentVolume(void);

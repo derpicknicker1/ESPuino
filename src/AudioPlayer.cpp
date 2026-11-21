@@ -3,6 +3,8 @@
 
 #include "AudioPlayer.h"
 
+#include "Advent.h"
+
 #include "Audio.h"
 #include "Bluetooth.h"
 #include "Cmd.h"
@@ -214,7 +216,6 @@ static std::optional<Playlist *> AudioPlayer_ReturnPlaylistFromWebstream(const c
 static bool AudioPlayer_ArrSortHelper_strcmp(const char *a, const char *b);
 static bool AudioPlayer_ArrSortHelper_strnatcmp(const char *a, const char *b);
 static bool AudioPlayer_ArrSortHelper_strnatcasecmp(const char *a, const char *b);
-static void AudioPlayer_SortPlaylist(Playlist *playlist);
 static void AudioPlayer_RandomizePlaylist(Playlist *playlist);
 static bool AudioPlayer_NvsRfidWriteWrapper(const char *_rfidCardId, const uint32_t _playPosition, const uint8_t _playMode, const uint16_t _trackLastPlayed);
 static void AudioPlayer_ClearCover(void);
@@ -614,7 +615,7 @@ void AudioPlayer_Exit(void) {
 	playTimeSecTotal += playTimeSecSinceStart;
 	gPrefsSettings.putULong("playTimeTotal", playTimeSecTotal);
 	// Make sure last playposition for audiobook is saved when playback is active while shutdown was initiated
-	if (gPrefsSettings.getBool("savePosShutdown", false) && !gPlayProperties.pausePlay && (gPlayProperties.playMode == AUDIOBOOK || gPlayProperties.playMode == AUDIOBOOK_LOOP || gPlayProperties.playMode == AUDIOBOOK_RECURSIVE)) {
+	if (gPrefsSettings.getBool("savePosShutdown", false) && !gPlayProperties.pausePlay && (gPlayProperties.playMode == AUDIOBOOK || gPlayProperties.playMode == AUDIOBOOK_LOOP || gPlayProperties.playMode == AUDIOBOOK_RECURSIVE || gPlayProperties.playMode == ADVENT_CALENDAR)) {
 		AudioPlayer_SetTrackControlNow(PAUSEPLAY);
 		// Call the loop explicitely to make sure that PAUSE is set (because this saves the current playpos)
 		AudioPlayer_Loop();
@@ -1015,6 +1016,9 @@ void AudioPlayer_Loop() {
 				gPlayProperties.playlistFinished = true;
 				return;
 			}
+			if (gPlayProperties.playMode == ADVENT_CALENDAR) {
+				Advent_OnTrackFinished(gPlayProperties.playRfidTag, gPlayProperties.currentTrackNumber);
+			}
 			if (gPlayProperties.saveLastPlayPosition) { // Don't save for AUDIOBOOK_LOOP because not necessary
 				if (gPlayProperties.currentTrackNumber + 1 < gPlayProperties.playlist->size()) {
 					// Only save if there's another track, otherwise it will be saved at end of playlist anyway
@@ -1115,6 +1119,14 @@ void AudioPlayer_Loop() {
 						audio->stopSong();
 					}
 				} else {
+					if (gPlayProperties.playMode == ADVENT_CALENDAR && Advent_HasLockedChapters() && Advent_IsAnnouncementEnabled(AdventAnnouncement::Locked)) {
+						// Past today's chapter: tomorrow's door is still shut. Say so on top of the red blink
+						// below, then carry on where we were.
+						const String announcement = Advent_GetAnnouncementFile(AdventAnnouncement::Locked);
+						if (!announcement.isEmpty()) {
+							AudioPlayer_PlayAnnouncement(announcement.c_str());
+						}
+					}
 					Log_Println(lastTrackAlreadyActive, LOGLEVEL_NOTICE);
 					System_IndicateError();
 					return;
@@ -1283,7 +1295,7 @@ void AudioPlayer_Loop() {
 		}
 
 		if (gPlayProperties.playUntilTrackNumber == gPlayProperties.currentTrackNumber && gPlayProperties.playUntilTrackNumber > 0) {
-			if (gPlayProperties.saveLastPlayPosition) {
+			if (gPlayProperties.saveLastPlayPosition && gPlayProperties.playMode != ADVENT_CALENDAR) { // calendar: track 0 is day 1's chapter, not "from the start"
 				AudioPlayer_NvsRfidWriteWrapper(gPlayProperties.playRfidTag, 0, gPlayProperties.playMode, 0);
 			}
 			gPlayProperties.playlistFinished = true;
@@ -1295,8 +1307,9 @@ void AudioPlayer_Loop() {
 		if (gPlayProperties.currentTrackNumber >= gPlayProperties.playlist->size()) { // Check if last element of playlist is already reached
 			Log_Println(endOfPlaylistReached, LOGLEVEL_NOTICE);
 			if (!gPlayProperties.repeatPlaylist) {
-				if (gPlayProperties.saveLastPlayPosition) {
-					// Set back to first track
+				// Set back to first track. Not for the calendar: track 0 is day 1's chapter there, and the
+				// chapter that just ended was already reset by Advent_OnTrackFinished().
+				if (gPlayProperties.saveLastPlayPosition && gPlayProperties.playMode != ADVENT_CALENDAR) {
 					AudioPlayer_NvsRfidWriteWrapper(gPlayProperties.playRfidTag, 0, gPlayProperties.playMode, 0);
 				}
 				gPlayProperties.playlistFinished = true;
@@ -1614,7 +1627,7 @@ void AudioPlayer_PauseOnMinVolume(const uint8_t oldVolume, const uint8_t newVolu
 // playmode to the track-queue.
 void AudioPlayer_SetPlaylist(const char *_itemToPlay, const uint32_t _lastPlayPos, const uint32_t _playMode, const uint16_t _trackLastPlayed) {
 	// Make sure last playposition for audiobook is saved when new RFID-tag is applied
-	if (gPlayProperties.SavePlayPosRfidChange && !gPlayProperties.pausePlay && (gPlayProperties.playMode == AUDIOBOOK || gPlayProperties.playMode == AUDIOBOOK_LOOP || gPlayProperties.playMode == AUDIOBOOK_RECURSIVE)) {
+	if (gPlayProperties.SavePlayPosRfidChange && !gPlayProperties.pausePlay && (gPlayProperties.playMode == AUDIOBOOK || gPlayProperties.playMode == AUDIOBOOK_LOOP || gPlayProperties.playMode == AUDIOBOOK_RECURSIVE || gPlayProperties.playMode == ADVENT_CALENDAR)) {
 		AudioPlayer_SetTrackControlNow(PAUSEPLAY);
 		while (!gPlayProperties.pausePlay) { // Make sure to wait until playback is paused in order to be sure that playposition saved in NVS
 			AudioPlayer_Loop();
@@ -1627,7 +1640,35 @@ void AudioPlayer_SetPlaylist(const char *_itemToPlay, const uint32_t _lastPlayPo
 	std::optional<Playlist *> musicFiles;
 	String folderPath = _itemToPlay;
 
-	if (_playMode != WEBSTREAM) {
+	if (_playMode == ADVENT_CALENDAR) {
+		Playlist *adventList = nullptr;
+		uint16_t adventTrack = 0;
+		uint32_t adventPos = 0;
+		const AdventResult result = Advent_BuildPlaylist(_itemToPlay, gCurrentRfidTagId, adventList, adventTrack, adventPos);
+		if (result == AdventResult::TimeUnknown || result == AdventResult::Locked) {
+			// Nothing to open (yet). The LEDs always blink red; if switched on, a spoken hint comes on
+			// top, which children understand better than the blinking alone.
+			System_IndicateError();
+			const AdventAnnouncement which = (result == AdventResult::TimeUnknown) ? AdventAnnouncement::TimeUnknown : AdventAnnouncement::Locked;
+			if (!Advent_IsAnnouncementEnabled(which)) {
+				return;
+			}
+			const String announcement = Advent_GetAnnouncementFile(which);
+			if (announcement.isEmpty() || !gFSystem.exists(announcement.c_str())) {
+				Log_Printf(LOGLEVEL_ERROR, adventAnnouncementMissing, announcement.c_str());
+				return;
+			}
+			AudioPlayer_SetPlaylist(announcement.c_str(), 0, SINGLE_TRACK, 0);
+			return;
+		}
+		if (result == AdventResult::Ok) {
+			musicFiles = adventList;
+			gPlayProperties.startAtFilePos = adventPos;
+			gPlayProperties.currentTrackNumber = adventTrack;
+		} else {
+			musicFiles = std::nullopt;
+		}
+	} else if (_playMode != WEBSTREAM) {
 		if (_playMode == RANDOM_SUBDIRECTORY_OF_DIRECTORY || _playMode == RANDOM_SUBDIRECTORY_OF_DIRECTORY_ALL_TRACKS_OF_DIR_RANDOM) {
 			folderPath = SdCard_pickRandomSubdirectory(_itemToPlay);
 			if (!folderPath) {
@@ -1739,6 +1780,12 @@ void AudioPlayer_SetPlaylist(const char *_itemToPlay, const uint32_t _lastPlayPo
 			break;
 		}
 
+		case ADVENT_CALENDAR: { // Already in chapter order, must not be re-sorted
+			gPlayProperties.saveLastPlayPosition = true;
+			Log_Println(modeAdventCalendar, LOGLEVEL_NOTICE);
+			break;
+		}
+
 		case ALL_TRACKS_OF_DIR_SORTED_RECURSIVE: {
 			Log_Printf(LOGLEVEL_NOTICE, modeAllTrackAlphSortedRecursive, folderPath.c_str());
 			AudioPlayer_SortPlaylist(list);
@@ -1820,6 +1867,14 @@ bool AudioPlayer_NvsRfidWriteWrapper(const char *_rfidCardId, const uint32_t _pl
 		// writing back to NVS with NO_PLAYLIST seems to be a bug - Todo: Find the cause here
 		Log_Printf(LOGLEVEL_ERROR, modeInvalid, _playMode);
 		return 0;
+	}
+	if (_playMode == ADVENT_CALENDAR) {
+		// The calendar keeps its position per chapter in a namespace of its own; the tag's assignment
+		// (folder + playmode) stays untouched.
+		Led_SetPause(true);
+		const bool saved = Advent_SaveProgress(_rfidCardId, _trackLastPlayed, _playPosition);
+		Led_SetPause(false);
+		return saved;
 	}
 	Led_SetPause(true); // Workaround to prevent exceptions due to Neopixel-signalisation while NVS-write
 	char firstPart[275] = {0};

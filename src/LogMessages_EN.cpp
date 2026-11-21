@@ -274,4 +274,14 @@ const char mediaHubAdoptWriteFailed[] = "MediaHub: could not write the card assi
 const char mediaHubHubUnreachable[] = "MediaHub %s not reachable.";
 const char mediaHubReportedPending[] = "MediaHub %s: card %s is not assigned there yet, but has been noted for assignment.";
 const char trackCommandQueueFull[] = "Track command %u dropped: queue full.";
+const char modeAdventCalendar[] = "Mode: advent calendar";
+const char adventTimeUnknown[] = "Advent calendar: date/time unknown (no NTP sync since power-on)";
+const char adventLocked[] = "Advent calendar: door %u is still shut";
+const char adventNoChapters[] = "Advent calendar: no chapters found in '%s' (file or folder name has to start with the day number)";
+const char adventEmptyChapter[] = "Advent calendar: chapter %u holds no playable files: %s";
+const char adventDuplicateChapter[] = "Advent calendar: chapter %u exists twice, using %s";
+const char adventPlaylistReady[] = "Advent calendar: %u chapters open, starting at day %u, file %u, position %u s";
+const char adventProgressSaved[] = "Advent calendar: saved progress of day %u: file %u, position %u s";
+const char adventChapterFinished[] = "Advent calendar: chapter %u finished";
+const char adventAnnouncementMissing[] = "Advent calendar: announcement file not configured or not found: '%s'";
 #endif

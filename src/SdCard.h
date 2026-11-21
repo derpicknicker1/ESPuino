@@ -28,6 +28,7 @@ uint64_t SdCard_GetTotalSize();
 uint64_t SdCard_GetUsedSize();
 uint64_t SdCard_GetFreeSize();
 void SdCard_PrintInfo();
+bool fileValid(const char *_fileItem); // supported audio file or playlist, not hidden
 std::optional<Playlist *> SdCard_ReturnPlaylist(const char *fileName, const uint32_t _playMode, const uint8_t _maxRecursionDepth, bool _recursionMode);
 const String SdCard_pickRandomSubdirectory(const char *_directory);
 uint8_t SdCard_GetMaxRecursionDepth(void);

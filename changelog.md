@@ -2,6 +2,8 @@
 
 ## DEV-branch
 
+* 21.11.2026: New playmode **Advent calendar** (19): one tag plays a different chapter every day. Chapters are the files or folders inside the assigned folder whose name starts with the day number (`01.mp3`, `07 - Der Stern.mp3`, `12 Schneesturm/`). In December the chapters up to today are open, today's from a configurable hour on; January to November everything is open. Applying the tag starts today's chapter where it was left off, Previous goes back to earlier days, and the position is kept per chapter. When no time is known (no NTP since power-on) or a door is still shut, the LEDs blink red; a spoken "time unknown" / "door still shut" can be switched on in addition, with German and English files in `announcements/`. Details: [docs/advent-calendar.md](docs/advent-calendar.md).
+
 ## Version 3.2 (07.11.2026)
 
 * 07.11.2026: MQTT: `ambient_light` and `sleep` now report their state (`ON`/`OFF`) as announced, `lock_controls` reports `ON`/`OFF` right after connecting instead of `1`/`0`, and ESPuino registers a last will: if it drops off without a clean shutdown (power cut, crash, out of WiFi range), the broker itself publishes `Offline` on `state` after about 90 seconds (keepalive is now 60 s).

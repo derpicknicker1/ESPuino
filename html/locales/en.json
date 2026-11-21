@@ -307,7 +307,8 @@
 					"14": "🎲📁🔀 All tracks of a random subdirectory (random)",
 					"8": "📻 Webradio",
 					"11": "📃 List (files from SD and/or webstreams) from local .m3u-File",
-					"18": "🌐 MediaHub (content/mode comes from the selected media server)"
+					"18": "🌐 MediaHub (content/mode comes from the selected media server)",
+					"19": "🎄 Advent calendar (one chapter per day; file or folder starts with the day number)"
 				},
 				"error": "Invalid playmode"
 			},
@@ -646,6 +647,19 @@
 			"recDepth": "Maximum recursion depth at generation of recursive playlists",
 			"sortModeExp": "Determines how files and playlists are sorted: standard alphabetical sorting (e.g. '10' before '2') or natural sorting, which orders numbers in names correctly (e.g. '2' before '10'), optionally case-sensitive.",
 			"recDepthExp": "Maximum directory depth to search when generating recursive playlists from subfolders."
+		},
+		"advent": {
+			"title": "Advent calendar",
+			"unlockHour": "Time from which the day's chapter is unlocked (hour, 0–23)",
+			"unlockHourExp": "In December, the day's chapter opens at this hour; before that only the chapters of the past days are open. From January to November all chapters are open. Date and time come from NTP over WiFi and keep running in deep sleep, but are lost when power is cut.",
+			"soundTimeUnknown": "Play announcement \"time unknown\"",
+			"soundTimeUnknownExp": "When the advent calendar is applied but the time is not known (no WiFi connection since power-on), the LEDs blink red. With this option on, the announcement is played as well.",
+			"fileTimeUnknown": "Announcement file",
+			"fileTimeUnknownExp": "Path of the file on the SD card, e.g. one from the ESPuino project's 'announcements' folder.",
+			"soundLocked": "Play announcement \"door still shut\"",
+			"soundLockedExp": "When no chapter is open yet, or when skipping forward past today's chapter, the LEDs blink red. With this option on, the announcement is played as well.",
+			"fileLocked": "Announcement file",
+			"fileLockedExp": "Path of the file on the SD card, e.g. one from the ESPuino project's 'announcements' folder."
 		},
 		"tabs": {
 			"playback": "Playback",

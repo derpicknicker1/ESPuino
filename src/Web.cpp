@@ -3,6 +3,7 @@
 
 #include "Web.h"
 
+#include "Advent.h"
 #include "ArduinoJson.h"
 #include "AsyncJson.h"
 #include "AudioPlayer.h"
@@ -1041,6 +1042,23 @@ WebsocketCodeType JSONToSettings(JsonObject doc) {
 		MediaHub_SetAskUnknownEnabled(doc["mediahub"]["askUnknown"].as<bool>());
 		MediaHub_SetShowDirEnabled(doc["mediahub"]["showDir"].as<bool>());
 	}
+	if (doc["advent"].is<JsonObject>()) {
+		// Advent calendar. Read at every tap, so nothing needs to be re-initialized. putString() returns
+		// strlen(), so an empty path must not be taken for a failed write.
+		if (doc["advent"]["unlockHour"].is<uint8_t>()) {
+			const uint8_t unlockHour = doc["advent"]["unlockHour"].as<uint8_t>();
+			if (unlockHour > 23 || gPrefsSettings.putUChar("advHour", unlockHour) == 0) {
+				Log_Printf(LOGLEVEL_ERROR, webSaveSettingsError, "advent");
+				return WebsocketCodeType::Error;
+			}
+		}
+		gPrefsSettings.putBool("advNoTimeSnd", doc["advent"]["soundTimeUnknown"].as<bool>());
+		gPrefsSettings.putBool("advLockedSnd", doc["advent"]["soundLocked"].as<bool>());
+		const char *noTimeFile = doc["advent"]["fileTimeUnknown"].as<const char *>();
+		gPrefsSettings.putString("advNoTimeFile", noTimeFile ? noTimeFile : "");
+		const char *lockedFile = doc["advent"]["fileLocked"].as<const char *>();
+		gPrefsSettings.putString("advLockedFile", lockedFile ? lockedFile : "");
+	}
 	if (doc["ftp"].is<JsonObject>()) {
 		const char *_ftpUser = doc["ftp"]["username"];
 		const char *_ftpPwd = doc["ftp"]["password"];
@@ -1561,6 +1579,21 @@ static void settingsToJSON(JsonObject obj, const String section) {
 	#endif
 		batSettings["voltageCheckInterval"].set(s_batteryCheckInterval);
 #endif
+		JsonObject adventSettings = defaultsObj["advent"].to<JsonObject>();
+		adventSettings["unlockHour"].set(Advent_DefaultUnlockHour);
+		adventSettings["soundTimeUnknown"].set(false);
+		adventSettings["soundLocked"].set(false);
+		adventSettings["fileTimeUnknown"].set("");
+		adventSettings["fileLocked"].set("");
+	}
+	// Advent calendar
+	if ((section == "") || (section == "advent")) {
+		JsonObject adventObj = obj["advent"].to<JsonObject>();
+		adventObj["unlockHour"].set(Advent_GetUnlockHour());
+		adventObj["soundTimeUnknown"].set(Advent_IsAnnouncementEnabled(AdventAnnouncement::TimeUnknown));
+		adventObj["soundLocked"].set(Advent_IsAnnouncementEnabled(AdventAnnouncement::Locked));
+		adventObj["fileTimeUnknown"].set(Advent_GetAnnouncementFile(AdventAnnouncement::TimeUnknown));
+		adventObj["fileLocked"].set(Advent_GetAnnouncementFile(AdventAnnouncement::Locked));
 	}
 	// MediaHub
 	if ((section == "") || (section == "mediahub")) {

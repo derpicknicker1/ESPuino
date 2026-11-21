@@ -1164,6 +1164,8 @@
 											data-i18n="files.rfid.playmode.mode.11"></option>
 										<option class="option-mediahub" value="18"
 											data-i18n="files.rfid.playmode.mode.18"></option>
+										<option class="option-folder" value="19"
+											data-i18n="files.rfid.playmode.mode.19"></option>
 									</select>
 									<div id="mediaHubServerDiv" style="display:none">
 										<label for="mediaHubServerSelect"
@@ -1685,6 +1687,72 @@
 									</select>
 								</div>
 							</div>
+						</div>
+						</fieldset>
+					</div>
+					<div class="col-md-12 mb-4" id="adventConfig">
+						<fieldset>
+							<legend class="w-auto" data-i18n="general.advent.title"></legend>
+						<div class="settings-group-card">
+							<div class="row mb-2 align-items-center">
+								<div class="col-sm-4 d-flex align-items-center gap-2">
+									<label for="adventUnlockHour" class="col-form-label"
+										data-i18n="general.advent.unlockHour"></label>
+									<a class="link-secondary" data-bs-toggle="popover"
+										data-i18n="[data-bs-content]general.advent.unlockHourExp" tabindex="0"><i
+											class="fas fa-circle-question"></i></a>
+								</div>
+								<div class="col-sm-8">
+									<input type="number" class="form-control" id="adventUnlockHour" name="adventUnlockHour"
+										min="0" max="23" step="1" value="6" required>
+								</div>
+							</div>
+							<hr>
+							<div class="d-flex gap-2">
+								<input type="checkbox" id="adventSoundTimeUnknown" name="adventSoundTimeUnknown" value="false">
+								<label for="adventSoundTimeUnknown" data-i18n="general.advent.soundTimeUnknown"></label>
+								<a class="link-secondary" data-bs-toggle="popover"
+									data-i18n="[data-bs-content]general.advent.soundTimeUnknownExp" tabindex="0"><i
+										class="fas fa-circle-question"></i></a>
+							</div>
+							<fieldset id="adventSoundTimeUnknownSection" class="mb-2" data-visible="false" disabled>
+								<div class="row align-items-center mb-2">
+									<div class="col-sm-4 d-flex align-items-center gap-2">
+										<label for="adventFileTimeUnknown" class="col-form-label"
+											data-i18n="general.advent.fileTimeUnknown"></label>
+										<a class="link-secondary" data-bs-toggle="popover"
+											data-i18n="[data-bs-content]general.advent.fileTimeUnknownExp" tabindex="0"><i
+												class="fas fa-circle-question"></i></a>
+									</div>
+									<div class="col-sm-8">
+										<input type="text" class="form-control" id="adventFileTimeUnknown" name="adventFileTimeUnknown"
+											maxlength="255" placeholder="/ESPuino/announcements/advent-time-unknown_de.mp3">
+									</div>
+								</div>
+							</fieldset>
+							<hr>
+							<div class="d-flex gap-2">
+								<input type="checkbox" id="adventSoundLocked" name="adventSoundLocked" value="false">
+								<label for="adventSoundLocked" data-i18n="general.advent.soundLocked"></label>
+								<a class="link-secondary" data-bs-toggle="popover"
+									data-i18n="[data-bs-content]general.advent.soundLockedExp" tabindex="0"><i
+										class="fas fa-circle-question"></i></a>
+							</div>
+							<fieldset id="adventSoundLockedSection" class="mb-2" data-visible="false" disabled>
+								<div class="row align-items-center mb-2">
+									<div class="col-sm-4 d-flex align-items-center gap-2">
+										<label for="adventFileLocked" class="col-form-label"
+											data-i18n="general.advent.fileLocked"></label>
+										<a class="link-secondary" data-bs-toggle="popover"
+											data-i18n="[data-bs-content]general.advent.fileLockedExp" tabindex="0"><i
+												class="fas fa-circle-question"></i></a>
+									</div>
+									<div class="col-sm-8">
+										<input type="text" class="form-control" id="adventFileLocked" name="adventFileLocked"
+											maxlength="255" placeholder="/ESPuino/announcements/advent-locked_de.mp3">
+									</div>
+								</div>
+							</fieldset>
 						</div>
 						</fieldset>
 					</div>
@@ -4717,6 +4785,17 @@
 				$("#playlistSortMode").val(playlistSettings.sortMode).change();
 				$("#playlistRecDepth").val(playlistSettings.recDepth).change();
 			}
+			// advent calendar
+			let adventSettings = settings.advent;
+			if (adventSettings) {
+				$('#adventUnlockHour').val(adventSettings.unlockHour);
+				$('#adventSoundTimeUnknown').prop('checked', adventSettings.soundTimeUnknown);
+				$('#adventSoundLocked').prop('checked', adventSettings.soundLocked);
+				$('#adventFileTimeUnknown').val(adventSettings.fileTimeUnknown);
+				$('#adventFileLocked').val(adventSettings.fileLocked);
+				setSettingsSectionActive(document.getElementById('adventSoundTimeUnknownSection'), adventSettings.soundTimeUnknown);
+				setSettingsSectionActive(document.getElementById('adventSoundLockedSection'), adventSettings.soundLocked);
+			}
 			// rotary encoder
 			let rotarySettings = settings.rotary;
 			if (rotarySettings) {
@@ -5338,6 +5417,13 @@
 				"playlist": {
 					sortMode: Number($('#playlistSortMode').val()),
 					recDepth: Number($('#playlistRecDepth').val()),
+				},
+				"advent": {
+					unlockHour: Number($('#adventUnlockHour').val()),
+					soundTimeUnknown: $('#adventSoundTimeUnknown').prop('checked'),
+					soundLocked: $('#adventSoundLocked').prop('checked'),
+					fileTimeUnknown: $('#adventFileTimeUnknown').val(),
+					fileLocked: $('#adventFileLocked').val(),
 				},
 				"buttons": {
 					short0: Number(document.getElementById("cmdselect_short_0").value),
@@ -6057,6 +6143,14 @@
 				if (checked) {
 					$('#criticalVoltage').bootstrapSlider('relayout');
 				}
+			});
+
+			/* Each advent calendar announcement gates its own file setting. */
+			$('#adventSoundTimeUnknown').on('change', function () {
+				setSettingsSectionActive(document.getElementById('adventSoundTimeUnknownSection'), $(this).prop('checked'));
+			});
+			$('#adventSoundLocked').on('change', function () {
+				setSettingsSectionActive(document.getElementById('adventSoundLockedSection'), $(this).prop('checked'));
 			});
 
 			/* The spoken low-battery warning gates its own file/repeat settings. */

@@ -272,4 +272,14 @@ const char mediaHubAdoptWriteFailed[] = "MediaHub : impossible d'écrire l'assig
 const char mediaHubHubUnreachable[] = "MediaHub %s inaccessible.";
 const char mediaHubReportedPending[] = "MediaHub %s : la carte %s n'y est pas encore assignée, mais a été notée en attente d'assignation.";
 const char trackCommandQueueFull[] = "Commande de piste %u ignorée : file d'attente pleine.";
+const char modeAdventCalendar[] = "Mode : calendrier de l'Avent";
+const char adventTimeUnknown[] = "Calendrier de l'Avent : date/heure inconnue (pas de synchronisation NTP depuis la mise sous tension)";
+const char adventLocked[] = "Calendrier de l'Avent : la case %u est encore fermée";
+const char adventNoChapters[] = "Calendrier de l'Avent : aucun chapitre trouvé dans '%s' (le nom du fichier ou du dossier doit commencer par le numéro du jour)";
+const char adventEmptyChapter[] = "Calendrier de l'Avent : le chapitre %u ne contient aucun fichier lisible : %s";
+const char adventDuplicateChapter[] = "Calendrier de l'Avent : chapitre %u en double, utilisation de %s";
+const char adventPlaylistReady[] = "Calendrier de l'Avent : %u chapitres ouverts, début au jour %u, fichier %u, position %u s";
+const char adventProgressSaved[] = "Calendrier de l'Avent : progression du jour %u enregistrée : fichier %u, position %u s";
+const char adventChapterFinished[] = "Calendrier de l'Avent : chapitre %u terminé";
+const char adventAnnouncementMissing[] = "Calendrier de l'Avent : fichier d'annonce non configuré ou introuvable : '%s'";
 #endif

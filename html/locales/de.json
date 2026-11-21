@@ -307,7 +307,8 @@
 					"14": "🎲📁🔀 Alle Titel aus einem zufälligen Unterverzeichnis (zufällig)",
 					"8": "📻 Webradio",
 					"11": "📃 Liste (Dateien von SD und/oder Webstreams) aus lokaler .m3u-Datei",
-					"18": "🌐 MediaHub (Inhalt/Modus kommt vom gewählten Mediaserver)"
+					"18": "🌐 MediaHub (Inhalt/Modus kommt vom gewählten Mediaserver)",
+					"19": "🎄 Adventskalender (ein Kapitel pro Tag; Datei oder Ordner beginnt mit der Tageszahl)"
 				},
 				"error": "Kein gültiger Abspielmodus"
 			},
@@ -646,6 +647,19 @@
 			"recDepth": "Maximale Rekursionstiefe beim Generieren der Rekursiv-Playlists",
 			"sortModeExp": "Legt fest, wie Dateien und Playlists sortiert werden: Alphabetische Standardsortierung (z.B. '10' vor '2') oder natürliche Sortierung, die Zahlen im Namen korrekt einordnet (z.B. '2' vor '10'), wahlweise unter Beachtung der Groß-/Kleinschreibung.",
 			"recDepthExp": "Maximale Verzeichnistiefe, bis zu der beim Erstellen rekursiver Playlists in Unterordnern gesucht wird."
+		},
+		"advent": {
+			"title": "Adventskalender",
+			"unlockHour": "Uhrzeit, ab der das Kapitel des Tages freigeschaltet ist (Stunde, 0–23)",
+			"unlockHourExp": "Im Dezember ist das Kapitel des Tages ab dieser Stunde offen, vorher nur die Kapitel der vergangenen Tage. Von Januar bis November sind alle Kapitel offen. Datum und Uhrzeit kommen per NTP aus dem WLAN und laufen im Deep Sleep weiter, gehen bei einem Stromausfall aber verloren.",
+			"soundTimeUnknown": "Ansage „Zeit unbekannt“ abspielen",
+			"soundTimeUnknownExp": "Wenn der Adventskalender aufgelegt wird, die Uhrzeit aber nicht bekannt ist (seit dem Einschalten noch keine Verbindung zum WLAN), blinken die LEDs rot. Ist diese Option aktiv, wird zusätzlich die Ansage abgespielt.",
+			"fileTimeUnknown": "Ansage-Datei",
+			"fileTimeUnknownExp": "Pfad zur Datei auf der SD-Karte, z. B. aus dem Ordner 'announcements' des ESPuino-Projekts.",
+			"soundLocked": "Ansage „Türchen noch zu“ abspielen",
+			"soundLockedExp": "Wenn noch kein Kapitel offen ist oder über das heutige Kapitel hinaus vorgesprungen wird, blinken die LEDs rot. Ist diese Option aktiv, wird zusätzlich die Ansage abgespielt.",
+			"fileLocked": "Ansage-Datei",
+			"fileLockedExp": "Pfad zur Datei auf der SD-Karte, z. B. aus dem Ordner 'announcements' des ESPuino-Projekts."
 		},
 		"tabs": {
 			"playback": "Wiedergabe",

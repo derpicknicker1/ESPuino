@@ -273,4 +273,14 @@ const char mediaHubAdoptWriteFailed[] = "MediaHub: Zuweisung der Karte konnte ni
 const char mediaHubHubUnreachable[] = "MediaHub %s nicht erreichbar.";
 const char mediaHubReportedPending[] = "MediaHub %s: Karte %s ist dort noch nicht zugewiesen, wurde aber zum Zuweisen vorgemerkt.";
 const char trackCommandQueueFull[] = "Track-Kommando %u verworfen: Queue voll.";
+const char modeAdventCalendar[] = "Modus: Adventskalender";
+const char adventTimeUnknown[] = "Adventskalender: Datum/Uhrzeit unbekannt (noch kein NTP seit dem Einschalten)";
+const char adventLocked[] = "Adventskalender: Türchen %u ist noch zu";
+const char adventNoChapters[] = "Adventskalender: Keine Kapitel in '%s' gefunden (Datei oder Ordner muss mit der Tageszahl beginnen)";
+const char adventEmptyChapter[] = "Adventskalender: Kapitel %u enthält keine abspielbaren Dateien: %s";
+const char adventDuplicateChapter[] = "Adventskalender: Kapitel %u doppelt vorhanden, verwende %s";
+const char adventPlaylistReady[] = "Adventskalender: %u Kapitel offen, starte bei Tag %u, Datei %u, Position %u s";
+const char adventProgressSaved[] = "Adventskalender: Fortschritt Tag %u gespeichert: Datei %u, Position %u s";
+const char adventChapterFinished[] = "Adventskalender: Kapitel %u zu Ende gehört";
+const char adventAnnouncementMissing[] = "Adventskalender: Ansage-Datei nicht konfiguriert oder nicht gefunden: '%s'";
 #endif
