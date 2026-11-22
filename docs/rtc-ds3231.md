@@ -36,7 +36,21 @@ Nothing needs to be configured: the module is detected automatically at boot.
 
 The status is shown under **General → Time**: *found, time valid*, *time invalid* (the module's
 oscillator stopped, i.e. the coin cell was empty or removed, or it was never set) or *not present*.
-An invalid time is fixed by the next NTP sync or by setting the clock by hand.
+An invalid time is fixed by the next NTP sync or by setting the clock by hand. The status is read
+once at boot, so changes while ESPuino is running only show after the next start.
+
+### Detecting a missing or flat coin cell
+
+The DS3231 has no way to report its battery voltage. All it offers is the *oscillator stop flag*,
+which it sets once its oscillator actually stopped. As long as the module is powered from ESPuino
+(VCC), the oscillator keeps running without a coin cell, so a missing or flat cell only shows after
+ESPuino was **without power** and the clock stopped as a result; the status then says *time invalid*
+at the next start.
+
+To test it: remove the coin cell, cut ESPuino's power completely (USB and battery; deep sleep is
+only enough if the module is fed from the switched peripheral supply) and switch it on again.
+Warning about a weak cell before the time is lost would need its voltage measured separately, e.g.
+through a voltage divider on an ADC pin.
 
 If address `0x68` is taken by something else, define `RTC_DS3231_DISABLE` in `settings.h` (or
 `settings-override.h`) to skip the detection.
