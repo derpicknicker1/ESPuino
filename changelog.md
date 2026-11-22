@@ -2,6 +2,8 @@
 
 ## DEV-branch
 
+* 22.11.2026: Real-time clock DS3231 on the second I2C bus is detected automatically. It sets the clock at boot and is updated by every NTP sync and every manual setting, so ESPuino knows the time after a power cut even without WiFi. Status under General → Time; `RTC_DS3231_DISABLE` skips it. Details: [docs/rtc-ds3231.md](docs/rtc-ds3231.md).
+
 * 22.11.2026: Date & time: new tab **General → Time**. Automatic NTP sync can be switched off, and while it is off, date and time can be set by hand (or taken over from the browser). The device clock is shown in the title bar of the web interface. New endpoint `/time` (GET/POST).
 
 ## Version 3.2 (07.11.2026)

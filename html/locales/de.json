@@ -650,12 +650,19 @@
 		"time": {
 			"title": "Datum & Uhrzeit",
 			"current": "Aktuelle Gerätezeit",
+			"rtc": "Echtzeituhr (DS3231)",
+			"rtcExp": "Ein DS3231-Modul am I2C-Bus wird automatisch erkannt. Es behält die Uhrzeit auch ohne Strom (Knopfzelle) und stellt die Uhr beim Start. Jeder NTP-Abgleich und jedes manuelle Stellen wird in den DS3231 übernommen.",
+			"rtcStatus": {
+				"ok": "erkannt, Uhrzeit gültig",
+				"lost": "Uhrzeit ungültig (Batterie leer oder noch nie gestellt) – bitte neu stellen",
+				"missing": "nicht vorhanden"
+			},
 			"deviceClock": "Uhrzeit des ESPuino",
 			"unknown": "unbekannt",
 			"ntp": "Automatisch per NTP abgleichen",
 			"ntpExp": "Holt Datum und Uhrzeit aus dem Internet, sobald das WLAN verbunden ist. Zum manuellen Einstellen ausschalten; der nächste Abgleich würde eine von Hand gestellte Zeit sonst überschreiben.",
 			"manual": "Datum und Uhrzeit",
-			"manualExp": "Wird sofort mit „Uhrzeit setzen“ übernommen (ohne Speichern). Die Uhr läuft im Deep Sleep weiter, geht bei einem Stromausfall oder leerem Akku aber verloren und muss dann neu gestellt werden.",
+			"manualExp": "Wird sofort mit „Uhrzeit setzen“ übernommen (ohne Speichern). Die Uhr läuft im Deep Sleep weiter. Ohne Echtzeituhr (DS3231) geht sie bei einem Stromausfall oder leerem Akku verloren und muss dann neu gestellt werden.",
 			"fromBrowser": "Zeit dieses Geräts übernehmen",
 			"set": "Uhrzeit setzen",
 			"setDone": "Uhrzeit gesetzt",

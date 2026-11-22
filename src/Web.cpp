@@ -22,6 +22,7 @@
 #include "MemX.h"
 #include "Mqtt.h"
 #include "Rfid.h"
+#include "Rtc.h"
 #include "RfidPn5180.h"
 #include "RotaryEncoder.h"
 #include "SdCard.h"
@@ -3006,6 +3007,7 @@ static void handleGetTime(AsyncWebServerRequest *request) {
 	const bool valid = System_GetLocalTime(now);
 	obj["valid"] = valid;
 	obj["ntpEnabled"] = Wlan_IsNtpEnabled();
+	obj["rtc"] = Rtc_GetStatusName(); // DS3231: "ok", "lost" or "missing"
 	if (valid) {
 		char local[20];
 		strftime(local, sizeof(local), "%Y-%m-%dT%H:%M:%S", &now);

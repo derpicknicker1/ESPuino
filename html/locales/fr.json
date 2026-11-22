@@ -650,12 +650,19 @@
 		"time": {
 			"title": "Date et heure",
 			"current": "Heure actuelle de l'appareil",
+			"rtc": "Horloge temps réel (DS3231)",
+			"rtcExp": "Un module DS3231 sur le bus I2C est détecté automatiquement. Il conserve l'heure sans alimentation (pile bouton) et règle l'horloge au démarrage. Chaque synchronisation NTP et chaque réglage manuel est enregistré dans le DS3231.",
+			"rtcStatus": {
+				"ok": "détectée, heure valide",
+				"lost": "heure invalide (pile vide ou jamais réglée) – veuillez la régler à nouveau",
+				"missing": "absente"
+			},
 			"deviceClock": "Horloge de l'ESPuino",
 			"unknown": "inconnue",
 			"ntp": "Synchroniser automatiquement via NTP",
 			"ntpExp": "Récupère la date et l'heure sur Internet dès que le WiFi est connecté. Désactiver pour régler l'heure manuellement ; sinon, la prochaine synchronisation écraserait l'heure réglée à la main.",
 			"manual": "Date et heure",
-			"manualExp": "Appliquée immédiatement avec « Régler l'heure » (sans enregistrer). L'horloge continue en veille profonde, mais est perdue en cas de coupure de courant ou de batterie vide et doit alors être réglée à nouveau.",
+			"manualExp": "Appliquée immédiatement avec « Régler l'heure » (sans enregistrer). L'horloge continue en veille profonde. Sans horloge temps réel (DS3231), elle est perdue en cas de coupure de courant ou de batterie vide et doit alors être réglée à nouveau.",
 			"fromBrowser": "Utiliser l'heure de cet appareil",
 			"set": "Régler l'heure",
 			"setDone": "Heure réglée",

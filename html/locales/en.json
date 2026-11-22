@@ -650,12 +650,19 @@
 		"time": {
 			"title": "Date & time",
 			"current": "Current device time",
+			"rtc": "Real-time clock (DS3231)",
+			"rtcExp": "A DS3231 module on the I2C bus is detected automatically. It keeps the time without power (coin cell) and sets the clock at boot. Every NTP sync and every manual setting is written to the DS3231.",
+			"rtcStatus": {
+				"ok": "found, time valid",
+				"lost": "time invalid (flat battery or never set) – please set it again",
+				"missing": "not present"
+			},
 			"deviceClock": "ESPuino's clock",
 			"unknown": "unknown",
 			"ntp": "Sync automatically via NTP",
 			"ntpExp": "Fetches date and time from the internet as soon as WiFi is connected. Switch it off to set the time by hand; the next sync would overwrite a hand-set time otherwise.",
 			"manual": "Date and time",
-			"manualExp": "Applied right away with \"Set time\" (no need to save). The clock keeps running in deep sleep, but is lost on a power cut or a flat battery and has to be set again then.",
+			"manualExp": "Applied right away with \"Set time\" (no need to save). The clock keeps running in deep sleep. Without a real-time clock (DS3231) it is lost on a power cut or a flat battery and has to be set again then.",
 			"fromBrowser": "Use this device's time",
 			"set": "Set time",
 			"setDone": "Time set",
