@@ -2,6 +2,8 @@
 
 ## DEV-branch
 
+* 22.11.2026: Date & time: new tab **General → Time**. Automatic NTP sync can be switched off, and while it is off, date and time can be set by hand (or taken over from the browser). The device clock is shown in the title bar of the web interface. New endpoint `/time` (GET/POST).
+
 ## Version 3.2 (07.11.2026)
 
 * 07.11.2026: MQTT: `ambient_light` and `sleep` now report their state (`ON`/`OFF`) as announced, `lock_controls` reports `ON`/`OFF` right after connecting instead of `1`/`0`, and ESPuino registers a last will: if it drops off without a clean shutdown (power cut, crash, out of WiFi range), the broker itself publishes `Offline` on `state` after about 90 seconds (keepalive is now 60 s).

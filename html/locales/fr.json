@@ -647,12 +647,28 @@
 			"sortModeExp": "Définit comment les fichiers et playlists sont triés : tri alphabétique standard (par ex. '10' avant '2') ou tri naturel, qui ordonne correctement les nombres dans les noms (par ex. '2' avant '10'), avec ou sans distinction majuscules/minuscules.",
 			"recDepthExp": "Profondeur maximale de répertoire explorée lors de la génération de playlists récursives à partir de sous-dossiers."
 		},
+		"time": {
+			"title": "Date et heure",
+			"current": "Heure actuelle de l'appareil",
+			"deviceClock": "Horloge de l'ESPuino",
+			"unknown": "inconnue",
+			"ntp": "Synchroniser automatiquement via NTP",
+			"ntpExp": "Récupère la date et l'heure sur Internet dès que le WiFi est connecté. Désactiver pour régler l'heure manuellement ; sinon, la prochaine synchronisation écraserait l'heure réglée à la main.",
+			"manual": "Date et heure",
+			"manualExp": "Appliquée immédiatement avec « Régler l'heure » (sans enregistrer). L'horloge continue en veille profonde, mais est perdue en cas de coupure de courant ou de batterie vide et doit alors être réglée à nouveau.",
+			"fromBrowser": "Utiliser l'heure de cet appareil",
+			"set": "Régler l'heure",
+			"setDone": "Heure réglée",
+			"setFailed": "Impossible de régler l'heure",
+			"invalid": "Veuillez saisir la date et l'heure"
+		},
 		"tabs": {
 			"playback": "Lecture",
 			"rfidReader": "Lecteur RFID",
 			"encoderButtons": "Codeur rotatif et boutons",
 			"led": "LED",
-			"power": "Énergie"
+			"power": "Énergie",
+			"time": "Heure"
 		}
 	},
 	"tools": {
