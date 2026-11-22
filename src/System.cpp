@@ -375,3 +375,27 @@ void System_esp_print_tasks(void) {
 	Serial.println("Enable CONFIG_FREERTOS_USE_TRACE_FACILITY to use vTaskGetRunTimeStats()!");
 #endif
 }
+
+// Anything before 2024 is an unset clock (the ESP32 starts at 1970 after a power cut).
+static constexpr time_t System_MinValidEpoch = 1704067200;
+
+bool System_GetLocalTime(struct tm &now) {
+	// System clock: set by NTP or by hand in the web interface, and kept running by the ESP32's RTC
+	// through deep sleep (but not through a power cut or a flat battery).
+	const time_t t = time(nullptr);
+	if (t < System_MinValidEpoch) {
+		return false;
+	}
+	localtime_r(&t, &now);
+	return true;
+}
+
+bool System_SetLocalTime(struct tm local) {
+	local.tm_isdst = -1; // let the time zone rules decide between summer and winter time
+	const time_t t = mktime(&local);
+	if (t < System_MinValidEpoch) {
+		return false;
+	}
+	const struct timeval tv = {t, 0};
+	return settimeofday(&tv, nullptr) == 0;
+}

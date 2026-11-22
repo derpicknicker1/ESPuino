@@ -134,6 +134,8 @@ bool Wlan_SetApPassword(String);
 uint32_t Wlan_GetApTimeoutMinutes(void);
 bool Wlan_SetApTimeoutMinutes(uint32_t);
 bool Wlan_IsConnected(void);
+bool Wlan_IsNtpEnabled(void);
+void Wlan_SetNtpEnabled(bool enabled); // stops/starts NTP right away (start only while connected)
 void Wlan_SetPowerSave(bool enabled);
 void Wlan_ToggleEnable(void);
 String Wlan_GetIpAddress(void);

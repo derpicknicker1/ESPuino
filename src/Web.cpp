@@ -103,6 +103,8 @@ static void handleDeleteRFIDRequest(AsyncWebServerRequest *request);
 static void handleGetMediaHubServers(AsyncWebServerRequest *request);
 static void handlePostMediaHubServers(AsyncWebServerRequest *request, JsonVariant &json);
 static void handleDeleteMediaHubServers(AsyncWebServerRequest *request);
+static void handleGetTime(AsyncWebServerRequest *request);
+static void handlePostTime(AsyncWebServerRequest *request, JsonVariant &json);
 static void handleGetInfo(AsyncWebServerRequest *request);
 static void handleGetSettings(AsyncWebServerRequest *request);
 static void handlePostSettings(AsyncWebServerRequest *request, JsonVariant &json);
@@ -627,6 +629,10 @@ void webserverStart(void) {
 		wServer.addRewrite(new OneParamRewrite("/mediahubservers/{name}", "/mediahubservers?name={name}"));
 		wServer.on("/mediahubservers", HTTP_DELETE, handleDeleteMediaHubServers);
 
+		// Device clock (title bar, manual setting while NTP is off)
+		wServer.on("/time", HTTP_GET, handleGetTime);
+		wServer.addHandler(new AsyncCallbackJsonWebHandler("/time", handlePostTime));
+
 		// WiFi scan
 		wServer.on("/wifiscan", HTTP_GET, handleWiFiScanRequest);
 
@@ -1041,6 +1047,9 @@ WebsocketCodeType JSONToSettings(JsonObject doc) {
 	if (doc["mediahub"].is<JsonObject>()) {
 		MediaHub_SetAskUnknownEnabled(doc["mediahub"]["askUnknown"].as<bool>());
 		MediaHub_SetShowDirEnabled(doc["mediahub"]["showDir"].as<bool>());
+	}
+	if (doc["time"].is<JsonObject>() && doc["time"]["ntpEnabled"].is<bool>()) {
+		Wlan_SetNtpEnabled(doc["time"]["ntpEnabled"].as<bool>());
 	}
 	if (doc["advent"].is<JsonObject>()) {
 		// Advent calendar. Read at every tap, so nothing needs to be re-initialized. putString() returns
@@ -1579,12 +1588,19 @@ static void settingsToJSON(JsonObject obj, const String section) {
 	#endif
 		batSettings["voltageCheckInterval"].set(s_batteryCheckInterval);
 #endif
+		JsonObject timeSettings = defaultsObj["time"].to<JsonObject>();
+		timeSettings["ntpEnabled"].set(true);
 		JsonObject adventSettings = defaultsObj["advent"].to<JsonObject>();
 		adventSettings["unlockHour"].set(Advent_DefaultUnlockHour);
 		adventSettings["soundTimeUnknown"].set(false);
 		adventSettings["soundLocked"].set(false);
 		adventSettings["fileTimeUnknown"].set("");
 		adventSettings["fileLocked"].set("");
+	}
+	// Time
+	if ((section == "") || (section == "time")) {
+		JsonObject timeObj = obj["time"].to<JsonObject>();
+		timeObj["ntpEnabled"].set(Wlan_IsNtpEnabled());
 	}
 	// Advent calendar
 	if ((section == "") || (section == "advent")) {
@@ -3012,6 +3028,60 @@ static void handleDeleteMediaHubServers(AsyncWebServerRequest *request) {
 	} else {
 		request->send(500, "text/plain; charset=utf-8", "error deleting media server");
 	}
+}
+
+// Device clock as local time ("YYYY-MM-DDTHH:MM:SS", time zone from settings.h). The web interface
+// shows it in the title bar and ticks it on by itself between requests.
+static void handleGetTime(AsyncWebServerRequest *request) {
+	AsyncJsonResponse *response = new AsyncJsonResponse();
+	JsonObject obj = response->getRoot();
+	struct tm now;
+	const bool valid = System_GetLocalTime(now);
+	obj["valid"] = valid;
+	obj["ntpEnabled"] = Wlan_IsNtpEnabled();
+	if (valid) {
+		char local[20];
+		strftime(local, sizeof(local), "%Y-%m-%dT%H:%M:%S", &now);
+		obj["local"] = local;
+	}
+	response->setLength();
+	request->send(response);
+}
+
+// Sets the clock by hand: {"local": "YYYY-MM-DDTHH:MM[:SS]"}. Only while NTP is off, as the next sync
+// would overwrite it otherwise; "ntpEnabled": false in the same request switches NTP off first, so the
+// web interface doesn't need a separate save for the checkbox it shows unticked.
+static void handlePostTime(AsyncWebServerRequest *request, JsonVariant &json) {
+	if (json["ntpEnabled"].is<bool>()) {
+		Wlan_SetNtpEnabled(json["ntpEnabled"].as<bool>());
+	}
+	if (Wlan_IsNtpEnabled()) {
+		Log_Printf(LOGLEVEL_ERROR, timeSetRejected, "NTP");
+		request->send(409, "text/plain; charset=utf-8", "NTP is enabled");
+		return;
+	}
+	const char *local = json["local"].as<const char *>();
+	int year, month, day, hour, minute, second = 0;
+	if (local == nullptr || sscanf(local, "%d-%d-%dT%d:%d:%d", &year, &month, &day, &hour, &minute, &second) < 5
+		|| month < 1 || month > 12 || day < 1 || day > 31 || hour < 0 || hour > 23 || minute < 0 || minute > 59 || second < 0 || second > 59) {
+		Log_Printf(LOGLEVEL_ERROR, timeSetRejected, local ? local : "-");
+		request->send(400, "text/plain; charset=utf-8", "invalid date/time");
+		return;
+	}
+	struct tm t = {};
+	t.tm_year = year - 1900;
+	t.tm_mon = month - 1;
+	t.tm_mday = day;
+	t.tm_hour = hour;
+	t.tm_min = minute;
+	t.tm_sec = second;
+	if (!System_SetLocalTime(t)) {
+		Log_Printf(LOGLEVEL_ERROR, timeSetRejected, local);
+		request->send(400, "text/plain; charset=utf-8", "invalid date/time");
+		return;
+	}
+	Log_Printf(LOGLEVEL_NOTICE, timeSetManually, day, month, year, hour, minute, second);
+	handleGetTime(request); // answers with the clock as now set
 }
 
 // Takes stream from file-upload and writes payload into a temporary sd-file.

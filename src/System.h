@@ -1,5 +1,6 @@
 #pragma once
 #include <Preferences.h>
+#include <time.h>
 
 extern Preferences gPrefsRfid;
 extern Preferences gPrefsSettings;
@@ -26,6 +27,11 @@ uint8_t System_GetSleepTimerRemainingMinutes(void);
 // Night mode: dims the LEDs and is the hook further "it's bedtime" behaviour hangs off. Set by the
 // long-press command, by every sleep trigger (timer, modification cards, MQTT) and by the
 // single-random-track play mode.
+// Current local date/time. False while the clock is unset (no NTP sync and not set by hand since
+// power-on). The one place to read an external RTC module (e.g. DS3231) later.
+bool System_GetLocalTime(struct tm &now);
+// Sets the clock from a local date/time (time zone from settings.h). False if out of range.
+bool System_SetLocalTime(struct tm local);
 void System_SetNightmode(bool enabled);
 bool System_GetNightmode(void);
 void System_ToggleNightmode(void);

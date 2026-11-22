@@ -648,6 +648,21 @@
 			"sortModeExp": "Legt fest, wie Dateien und Playlists sortiert werden: Alphabetische Standardsortierung (z.B. '10' vor '2') oder natürliche Sortierung, die Zahlen im Namen korrekt einordnet (z.B. '2' vor '10'), wahlweise unter Beachtung der Groß-/Kleinschreibung.",
 			"recDepthExp": "Maximale Verzeichnistiefe, bis zu der beim Erstellen rekursiver Playlists in Unterordnern gesucht wird."
 		},
+		"time": {
+			"title": "Datum & Uhrzeit",
+			"current": "Aktuelle Gerätezeit",
+			"deviceClock": "Uhrzeit des ESPuino",
+			"unknown": "unbekannt",
+			"ntp": "Automatisch per NTP abgleichen",
+			"ntpExp": "Holt Datum und Uhrzeit aus dem Internet, sobald das WLAN verbunden ist. Zum manuellen Einstellen ausschalten; der nächste Abgleich würde eine von Hand gestellte Zeit sonst überschreiben.",
+			"manual": "Datum und Uhrzeit",
+			"manualExp": "Wird sofort mit „Uhrzeit setzen“ übernommen (ohne Speichern). Die Uhr läuft im Deep Sleep weiter, geht bei einem Stromausfall oder leerem Akku aber verloren und muss dann neu gestellt werden.",
+			"fromBrowser": "Zeit dieses Geräts übernehmen",
+			"set": "Uhrzeit setzen",
+			"setDone": "Uhrzeit gesetzt",
+			"setFailed": "Uhrzeit konnte nicht gesetzt werden",
+			"invalid": "Bitte Datum und Uhrzeit angeben"
+		},
 		"advent": {
 			"title": "Adventskalender",
 			"unlockHour": "Uhrzeit, ab der das Kapitel des Tages freigeschaltet ist (Stunde, 0–23)",
@@ -666,7 +681,8 @@
 			"rfidReader": "RFID-Reader",
 			"encoderButtons": "Drehencoder & Taster",
 			"led": "LED",
-			"power": "Energie"
+			"power": "Energie",
+			"time": "Uhrzeit"
 		}
 	},
 	"tools": {

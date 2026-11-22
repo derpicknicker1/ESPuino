@@ -60,12 +60,16 @@ Ready-made files are in [`announcements/`](../announcements/README.md).
 
 ## Where the time comes from
 
-The time is synced via NTP as soon as WiFi is connected. The ESP32 keeps its clock running in deep
-sleep, so a box that only sleeps between uses knows the date even without WiFi. After a power cut or
-a flat battery the time is gone until the next NTP sync; until then the calendar blinks red (and says "time unknown" if switched on).
-Shortly after switching on, before WiFi is up, the same happens — applying the tag again a few seconds
-later works.
+By default the time is synced via NTP as soon as WiFi is connected. Under **General → Time** NTP can
+be switched off and date and time set by hand instead; the device clock is also shown in the title
+bar of the web interface.
+
+The ESP32 keeps its clock running in deep sleep, so a box that only sleeps between uses knows the date
+even without WiFi. After a power cut or a flat battery the time is gone until the next NTP sync or
+until it is set again; until then the calendar blinks red (and says "time unknown" if switched on).
+Shortly after switching on, before WiFi is up, the same happens — applying the tag again a few
+seconds later works.
 
 The ESP32's internal clock drifts by a few seconds to minutes per day in deep sleep, so for a box that
 goes weeks without WiFi the unlock hour may shift a little. An external RTC module (e.g. DS3231) can
-be added later in `Advent_GetTime()` (`src/Advent.cpp`) without touching anything else.
+be added later in `System_GetLocalTime()` (`src/System.cpp`) without touching anything else.

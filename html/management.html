@@ -448,6 +448,10 @@
 			</a>
 			<div class="collapse navbar-collapse justify-content-end">
 				<ul class="navbar-nav align-items-center">
+					<li class="nav-item me-3 text-white text-nowrap" id="deviceClock" data-i18n="[title]general.time.deviceClock">
+						<i class="far fa-clock me-1"></i><span class="d-none d-md-inline me-1" id="deviceClockDate"></span><span
+							id="deviceClockTime">--:--:--</span>
+					</li>
 					<li class="nav-item me-3">
 						<i class="fas fa-heartbeat" id="connectionStatusIndicator" title=""></i>
 					</li>
@@ -1438,6 +1442,8 @@
 							role="tab"><i class="fas fa-lightbulb"></i><span data-i18n="general.tabs.led"></span></a>
 						<a class="nav-item nav-link" id="general-power-tab" data-bs-toggle="tab" href="#general-power"
 							role="tab"><i class="fas fa-battery-full"></i><span data-i18n="general.tabs.power"></span></a>
+						<a class="nav-item nav-link" id="general-time-tab" data-bs-toggle="tab" href="#general-time"
+							role="tab"><i class="fas fa-clock"></i><span data-i18n="general.tabs.time"></span></a>
 					</div>
 						<div class="tab-content mt-3" id="GeneralSubTabContent">
 						<div class="tab-pane fade show active" id="general-playback" role="tabpanel">
@@ -2624,6 +2630,56 @@
 								</div>
 							</fieldset>
 							</div>
+						</fieldset>
+					</div>
+					<div>
+						<button type="button" class="btn btn-warning" data-i18n="reset"
+							onclick="resetSettings()"></button>&nbsp;<button type="submit" class="btn btn-primary"
+							data-i18n="general.saveButton"></button>
+					</div>
+						</div>
+						<div class="tab-pane fade" id="general-time" role="tabpanel">
+					<div class="col-md-12 mb-4" id="timeConfig">
+						<fieldset>
+							<legend class="w-auto" data-i18n="general.time.title"></legend>
+						<div class="settings-group-card">
+							<div class="row mb-3 align-items-center">
+								<div class="col-sm-4">
+									<span class="col-form-label" data-i18n="general.time.current"></span>
+								</div>
+								<div class="col-sm-8">
+									<strong id="timeCurrent">--</strong>
+								</div>
+							</div>
+							<div class="d-flex gap-2">
+								<input type="checkbox" id="ntpEnabled" name="ntpEnabled" value="true">
+								<label for="ntpEnabled" data-i18n="general.time.ntp"></label>
+								<a class="link-secondary" data-bs-toggle="popover"
+									data-i18n="[data-bs-content]general.time.ntpExp" tabindex="0"><i
+										class="fas fa-circle-question"></i></a>
+							</div>
+							<fieldset id="timeManualSection" class="mt-3" data-visible="false" disabled>
+								<div class="row align-items-center mb-2">
+									<div class="col-sm-4 d-flex align-items-center gap-2">
+										<label for="timeManualInput" class="col-form-label"
+											data-i18n="general.time.manual"></label>
+										<a class="link-secondary" data-bs-toggle="popover"
+											data-i18n="[data-bs-content]general.time.manualExp" tabindex="0"><i
+												class="fas fa-circle-question"></i></a>
+									</div>
+									<div class="col-sm-8">
+										<input type="datetime-local" class="form-control" id="timeManualInput"
+											name="timeManualInput" step="1">
+									</div>
+								</div>
+								<div class="d-flex flex-wrap gap-2 justify-content-end">
+									<button type="button" class="btn btn-secondary" id="timeFromBrowserBtn"
+										data-i18n="general.time.fromBrowser"></button>
+									<button type="button" class="btn btn-primary" id="timeSetBtn"
+										data-i18n="general.time.set"></button>
+								</div>
+							</fieldset>
+						</div>
 						</fieldset>
 					</div>
 					<div>
@@ -4785,6 +4841,15 @@
 				$("#playlistSortMode").val(playlistSettings.sortMode).change();
 				$("#playlistRecDepth").val(playlistSettings.recDepth).change();
 			}
+			// time
+			let timeSettings = settings.time;
+			if (timeSettings) {
+				$('#ntpEnabled').prop('checked', timeSettings.ntpEnabled);
+				setSettingsSectionActive(document.getElementById('timeManualSection'), !timeSettings.ntpEnabled);
+				if (!timeSettings.ntpEnabled) {
+					prefillManualTime();
+				}
+			}
 			// advent calendar
 			let adventSettings = settings.advent;
 			if (adventSettings) {
@@ -5418,6 +5483,9 @@
 					sortMode: Number($('#playlistSortMode').val()),
 					recDepth: Number($('#playlistRecDepth').val()),
 				},
+				"time": {
+					ntpEnabled: $('#ntpEnabled').prop('checked'),
+				},
 				"advent": {
 					unlockHour: Number($('#adventUnlockHour').val()),
 					soundTimeUnknown: $('#adventSoundTimeUnknown').prop('checked'),
@@ -5982,6 +6050,83 @@
 			});
 		}
 
+		/* Device clock in the title bar. The device is asked once a minute; in between the clock ticks
+		   on locally. The device sends its local time, which is kept as an offset to the browser's clock
+		   and rendered as UTC, so a browser in another time zone still shows the device's time. */
+		let deviceClockOffsetMs = null;
+		function applyDeviceClock(t) {
+			const m = (t && t.valid && t.local) ? t.local.match(/^(\d+)-(\d+)-(\d+)T(\d+):(\d+):(\d+)$/) : null;
+			deviceClockOffsetMs = m ? Date.UTC(+m[1], m[2] - 1, +m[3], +m[4], +m[5], +m[6]) - Date.now() : null;
+			renderDeviceClock();
+		}
+		function deviceClockNow() {
+			return (deviceClockOffsetMs === null) ? null : new Date(Date.now() + deviceClockOffsetMs);
+		}
+		function renderDeviceClock() {
+			const now = deviceClockNow();
+			const lang = i18next.language || undefined;
+			if (!now) {
+				$('#deviceClockDate').text('');
+				$('#deviceClockTime').text('--:--:--');
+				$('#timeCurrent').text(i18next.t('general.time.unknown'));
+				return;
+			}
+			const date = now.toLocaleDateString(lang, { timeZone: 'UTC', day: '2-digit', month: '2-digit', year: 'numeric' });
+			const time = now.toLocaleTimeString(lang, { timeZone: 'UTC', hour: '2-digit', minute: '2-digit', second: '2-digit' });
+			$('#deviceClockDate').text(date);
+			$('#deviceClockTime').text(time);
+			$('#timeCurrent').text(date + ' ' + time);
+		}
+		async function syncDeviceClock() {
+			try {
+				const response = await fetch("http://" + host + "/time");
+				if (response.ok) {
+					applyDeviceClock(await response.json());
+				}
+			} catch (err) {
+				// keep ticking the last known time; the heartbeat indicator already shows a lost connection
+			}
+		}
+		/* "YYYY-MM-DDTHH:MM:SS" for a datetime-local input; utc=true reads a Date holding device time. */
+		function toDateTimeLocal(d, utc) {
+			const p = (n) => String(n).padStart(2, '0');
+			return utc
+				? `${d.getUTCFullYear()}-${p(d.getUTCMonth() + 1)}-${p(d.getUTCDate())}T${p(d.getUTCHours())}:${p(d.getUTCMinutes())}:${p(d.getUTCSeconds())}`
+				: `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`;
+		}
+		function prefillManualTime() {
+			if (!$('#timeManualInput').val()) {
+				const now = deviceClockNow();
+				$('#timeManualInput').val(now ? toDateTimeLocal(now, true) : toDateTimeLocal(new Date(), false));
+			}
+		}
+		async function setDeviceTime() {
+			let local = $('#timeManualInput').val();
+			if (!local) {
+				toaster.error(i18next.t('general.time.invalid'));
+				return;
+			}
+			if (local.length === 16) {
+				local += ':00'; // browsers drop zero seconds
+			}
+			try {
+				// ntpEnabled: false - the checkbox is unticked (the button is disabled otherwise), so the
+				// device switches NTP off along with it instead of refusing until the form was saved.
+				const response = await fetch("http://" + host + "/time", {
+					method: "POST",
+					headers: { "Content-Type": "application/json" },
+					body: JSON.stringify({ ntpEnabled: false, local: local })
+				});
+				if (!response.ok) throw new Error(await response.text());
+				applyDeviceClock(await response.json());
+				toaster.success(i18next.t('general.time.setDone'));
+			} catch (err) {
+				toaster.error(i18next.t('general.time.setFailed') + ": " + err.message);
+			}
+		}
+		setInterval(renderDeviceClock, 1000);
+		setInterval(syncDeviceClock, 60000);
+
 		function setTitle(newTitle) {
 			$('title').text(newTitle);
 			$('#navbar-heading').text(newTitle);
@@ -5992,6 +6137,7 @@
 		}
 		$(document).ready(function () {
 			connect();
+			syncDeviceClock();
 			buildFileSystemTree("/");
 			updateSdCardInfo();
 			rebuildMediaHubServerList();
@@ -6144,6 +6290,19 @@
 					$('#criticalVoltage').bootstrapSlider('relayout');
 				}
 			});
+
+			/* The device time can only be set by hand while NTP is off - the next sync would overwrite it. */
+			$('#ntpEnabled').on('change', function () {
+				const ntp = $(this).prop('checked');
+				setSettingsSectionActive(document.getElementById('timeManualSection'), !ntp);
+				if (!ntp) {
+					prefillManualTime();
+				}
+			});
+			$('#timeFromBrowserBtn').on('click', function () {
+				$('#timeManualInput').val(toDateTimeLocal(new Date(), false));
+			});
+			$('#timeSetBtn').on('click', setDeviceTime);
 
 			/* Each advent calendar announcement gates its own file setting. */
 			$('#adventSoundTimeUnknown').on('change', function () {

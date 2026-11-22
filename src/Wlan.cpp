@@ -508,6 +508,37 @@ void ntpTimeAvailable(struct timeval *t) {
 	}
 }
 
+// Automatic time sync via NTP. Switched off, the clock is set by hand in the web interface instead
+// (and keeps running through deep sleep like an NTP-set one).
+bool Wlan_IsNtpEnabled(void) {
+	return gPrefsSettings.getBool("ntpEnable", true);
+}
+
+static void Wlan_StartNtp(void) {
+	Log_Println(syncingViaNtp, LOGLEVEL_NOTICE);
+	// Updates system time immediately upon receiving a response from the SNTP server
+	sntp_set_sync_mode(SNTP_SYNC_MODE_IMMED);
+	// set notification call-back function
+	sntp_set_time_sync_notification_cb(ntpTimeAvailable);
+	// start NTP request with timezone
+	configTzTime(timeZone, "de.pool.ntp.org", "0.pool.ntp.org", "ptbtime1.ptb.de");
+}
+
+void Wlan_SetNtpEnabled(bool enabled) {
+	if (enabled == Wlan_IsNtpEnabled()) {
+		return;
+	}
+	gPrefsSettings.putBool("ntpEnable", enabled);
+	if (!enabled) {
+		if (esp_sntp_enabled()) {
+			esp_sntp_stop(); // otherwise the next periodic sync would overwrite a hand-set time
+		}
+		Log_Println(ntpDisabled, LOGLEVEL_NOTICE);
+	} else if (Wlan_IsConnected()) {
+		Wlan_StartNtp();
+	}
+}
+
 static bool initialStart = true;
 // executed once after successfully connecting
 void handleWifiStateConnectionSuccess() {
@@ -524,13 +555,11 @@ void handleWifiStateConnectionSuccess() {
 	}
 
 	// get current time and date
-	Log_Println(syncingViaNtp, LOGLEVEL_NOTICE);
-	// Updates system time immediately upon receiving a response from the SNTP server
-	sntp_set_sync_mode(SNTP_SYNC_MODE_IMMED);
-	// set notification call-back function
-	sntp_set_time_sync_notification_cb(ntpTimeAvailable);
-	// start NTP request with timezone
-	configTzTime(timeZone, "de.pool.ntp.org", "0.pool.ntp.org", "ptbtime1.ptb.de");
+	if (Wlan_IsNtpEnabled()) {
+		Wlan_StartNtp();
+	} else {
+		Log_Println(ntpDisabled, LOGLEVEL_NOTICE);
+	}
 #ifdef MDNS_ENABLE
 	// zero conf, make device available as <hostname>.local
 	const String hostname = getHostname();

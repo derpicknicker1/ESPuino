@@ -2,6 +2,8 @@
 
 ## DEV-branch
 
+* 22.11.2026: Date & time: new tab **General → Time**. Automatic NTP sync can be switched off, and while it is off, date and time can be set by hand (or taken over from the browser). The device clock is shown in the title bar of the web interface. New endpoint `/time` (GET/POST).
+
 * 21.11.2026: New playmode **Advent calendar** (19): one tag plays a different chapter every day. Chapters are the files or folders inside the assigned folder whose name starts with the day number (`01.mp3`, `07 - Der Stern.mp3`, `12 Schneesturm/`). In December the chapters up to today are open, today's from a configurable hour on; January to November everything is open. Applying the tag starts today's chapter where it was left off, Previous goes back to earlier days, and the position is kept per chapter. When no time is known (no NTP since power-on) or a door is still shut, the LEDs blink red; a spoken "time unknown" / "door still shut" can be switched on in addition, with German and English files in `announcements/`. Details: [docs/advent-calendar.md](docs/advent-calendar.md).
 
 ## Version 3.2 (07.11.2026)

@@ -210,6 +210,53 @@ paths:
             application/json:
               schema:
                 type: string
+  /time:
+    get:
+      summary: Get the device clock.
+      description: >-
+        Local date/time of the device (time zone from settings.h). "local" is only present while the
+        clock is set (valid), i.e. after an NTP sync or after setting it by hand.
+      responses:
+        "200":
+          description: Device clock.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  valid:
+                    type: boolean
+                  ntpEnabled:
+                    type: boolean
+                  local:
+                    type: string
+                    example: "2026-12-01T06:00:00"
+    post:
+      summary: Set the device clock by hand.
+      description: >-
+        Only while automatic NTP sync is off. Passing "ntpEnabled": false in the same request switches
+        it off first. Answers with the clock as now set (same body as GET).
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                local:
+                  type: string
+                  description: Local date/time, YYYY-MM-DDTHH:MM[:SS]
+                  example: "2026-12-01T06:00:00"
+                ntpEnabled:
+                  type: boolean
+              required:
+                - local
+      responses:
+        "200":
+          description: Clock set.
+        "400":
+          description: Invalid date/time.
+        "409":
+          description: NTP sync is enabled.
   /wificonfig:
     get:
       summary: Get current common Wi-Fi configuration.

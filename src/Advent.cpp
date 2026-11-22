@@ -17,7 +17,6 @@
 namespace {
 
 constexpr const char prefsNamespace[] = "advent";
-constexpr time_t minValidEpoch = 1704067200; // 2024-01-01: anything earlier is an unset clock
 constexpr uint16_t progressVersion = 1;
 
 struct DayProgress {
@@ -161,14 +160,7 @@ uint8_t Advent_ParseChapterDay(const char *path) {
 }
 
 bool Advent_GetTime(struct tm &now) {
-	// System clock: set by NTP, and kept running by the ESP32's RTC through deep sleep (but not through
-	// a power cut or a flat battery). An external RTC module would be read here as a fallback.
-	const time_t t = time(nullptr);
-	if (t < minValidEpoch) {
-		return false;
-	}
-	localtime_r(&t, &now);
-	return true;
+	return System_GetLocalTime(now);
 }
 
 uint8_t Advent_GetUnlockHour(void) {

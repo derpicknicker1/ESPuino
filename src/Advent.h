@@ -44,8 +44,8 @@ uint8_t Advent_ParseChapterDay(const char *path);
 
 // --- Runtime ---
 
-// Current local date/time. False if none is known. This is the one place to add an external RTC
-// (e.g. DS3231) later: read it here whenever the system clock has not been set.
+// Current local date/time. False if none is known (see System_GetLocalTime(), which is also where an
+// external RTC module would be added).
 bool Advent_GetTime(struct tm &now);
 
 uint8_t Advent_GetUnlockHour(void);
