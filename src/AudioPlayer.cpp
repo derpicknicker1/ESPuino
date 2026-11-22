@@ -1119,11 +1119,16 @@ void AudioPlayer_Loop() {
 						audio->stopSong();
 					}
 				} else {
-					if (gPlayProperties.playMode == ADVENT_CALENDAR && Advent_HasLockedChapters() && Advent_IsAnnouncementEnabled(AdventAnnouncement::Locked)) {
+					if (gPlayProperties.playMode == ADVENT_CALENDAR) {
 						// Past today's chapter: tomorrow's door is still shut. Say so on top of the red blink
-						// below, then carry on where we were.
+						// below, then carry on where we were. Every case that stays silent is logged, so a
+						// missing announcement can be told apart from a broken one.
 						const String announcement = Advent_GetAnnouncementFile(AdventAnnouncement::Locked);
-						if (!announcement.isEmpty()) {
+						if (!Advent_HasLockedChapters()) {
+							Log_Println(adventNothingLocked, LOGLEVEL_NOTICE);
+						} else if (!Advent_IsAnnouncementEnabled(AdventAnnouncement::Locked) || announcement.isEmpty()) {
+							Log_Println(adventLockedAnnouncementOff, LOGLEVEL_NOTICE);
+						} else {
 							AudioPlayer_PlayAnnouncement(announcement.c_str());
 						}
 					}

@@ -283,4 +283,6 @@ const char adventPlaylistReady[] = "Adventskalender: %u Kapitel offen, starte be
 const char adventProgressSaved[] = "Adventskalender: Fortschritt Tag %u gespeichert: Datei %u, Position %u s";
 const char adventChapterFinished[] = "Adventskalender: Kapitel %u zu Ende gehört";
 const char adventAnnouncementMissing[] = "Adventskalender: Ansage-Datei nicht konfiguriert oder nicht gefunden: '%s'";
+const char adventNothingLocked[] = "Adventskalender: Alle Kapitel auf der SD-Karte sind schon offen, kein Türchen mehr zu (von Januar bis November ist alles offen)";
+const char adventLockedAnnouncementOff[] = "Adventskalender: Ansage 'Türchen noch zu' ist deaktiviert oder ohne Datei";
 #endif

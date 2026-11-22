@@ -283,3 +283,5 @@ extern const char adventPlaylistReady[];
 extern const char adventProgressSaved[];
 extern const char adventChapterFinished[];
 extern const char adventAnnouncementMissing[];
+extern const char adventNothingLocked[];
+extern const char adventLockedAnnouncementOff[];

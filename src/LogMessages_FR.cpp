@@ -282,4 +282,6 @@ const char adventPlaylistReady[] = "Calendrier de l'Avent : %u chapitres ouverts
 const char adventProgressSaved[] = "Calendrier de l'Avent : progression du jour %u enregistrée : fichier %u, position %u s";
 const char adventChapterFinished[] = "Calendrier de l'Avent : chapitre %u terminé";
 const char adventAnnouncementMissing[] = "Calendrier de l'Avent : fichier d'annonce non configuré ou introuvable : '%s'";
+const char adventNothingLocked[] = "Calendrier de l'Avent : tous les chapitres de la carte SD sont déjà ouverts, plus aucune case fermée (de janvier à novembre tout est ouvert)";
+const char adventLockedAnnouncementOff[] = "Calendrier de l'Avent : l'annonce 'case encore fermée' est désactivée ou sans fichier";
 #endif

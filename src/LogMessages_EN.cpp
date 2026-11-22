@@ -284,4 +284,6 @@ const char adventPlaylistReady[] = "Advent calendar: %u chapters open, starting 
 const char adventProgressSaved[] = "Advent calendar: saved progress of day %u: file %u, position %u s";
 const char adventChapterFinished[] = "Advent calendar: chapter %u finished";
 const char adventAnnouncementMissing[] = "Advent calendar: announcement file not configured or not found: '%s'";
+const char adventNothingLocked[] = "Advent calendar: all chapters on the SD card are open already, no door left shut (January to November everything is open)";
+const char adventLockedAnnouncementOff[] = "Advent calendar: announcement 'door still shut' is switched off or has no file";
 #endif
