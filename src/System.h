@@ -27,10 +27,14 @@ uint8_t System_GetSleepTimerRemainingMinutes(void);
 // Night mode: dims the LEDs and is the hook further "it's bedtime" behaviour hangs off. Set by the
 // long-press command, by every sleep trigger (timer, modification cards, MQTT) and by the
 // single-random-track play mode.
-// Current local date/time. False while the clock is unset (no NTP sync and not set by hand since
-// power-on). The one place to read an external RTC module (e.g. DS3231) later.
+// Anything before 2024 is an unset clock (the ESP32 starts at 1970 after a power cut).
+constexpr time_t System_MinValidEpoch = 1704067200;
+
+// Current local date/time. False while the clock is unset: no NTP sync, not set by hand and no valid
+// time from the DS3231 (see Rtc.h) since power-on.
 bool System_GetLocalTime(struct tm &now);
-// Sets the clock from a local date/time (time zone from settings.h). False if out of range.
+// Sets the clock from a local date/time (time zone from settings.h), and the DS3231 along with it if
+// there is one. False if out of range.
 bool System_SetLocalTime(struct tm local);
 void System_SetNightmode(bool enabled);
 bool System_GetNightmode(void);

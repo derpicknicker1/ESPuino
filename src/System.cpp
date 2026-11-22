@@ -14,6 +14,7 @@
 #include "Port.h"
 #include "Power.h"
 #include "Rfid.h"
+#include "Rtc.h"
 #include "SdCard.h"
 #include "Web.h"
 #include "Wlan.h"
@@ -376,12 +377,9 @@ void System_esp_print_tasks(void) {
 #endif
 }
 
-// Anything before 2024 is an unset clock (the ESP32 starts at 1970 after a power cut).
-static constexpr time_t System_MinValidEpoch = 1704067200;
-
 bool System_GetLocalTime(struct tm &now) {
-	// System clock: set by NTP or by hand in the web interface, and kept running by the ESP32's RTC
-	// through deep sleep (but not through a power cut or a flat battery).
+	// System clock: set at boot from the DS3231 if there is one, then by NTP or by hand in the web
+	// interface. The ESP32 keeps it running through deep sleep, but not through a power cut.
 	const time_t t = time(nullptr);
 	if (t < System_MinValidEpoch) {
 		return false;
@@ -397,5 +395,9 @@ bool System_SetLocalTime(struct tm local) {
 		return false;
 	}
 	const struct timeval tv = {t, 0};
-	return settimeofday(&tv, nullptr) == 0;
+	if (settimeofday(&tv, nullptr) != 0) {
+		return false;
+	}
+	Rtc_SetFromSystemClock();
+	return true;
 }

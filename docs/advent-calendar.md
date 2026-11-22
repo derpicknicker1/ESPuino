@@ -71,5 +71,5 @@ Shortly after switching on, before WiFi is up, the same happens — applying the
 seconds later works.
 
 The ESP32's internal clock drifts by a few seconds to minutes per day in deep sleep, so for a box that
-goes weeks without WiFi the unlock hour may shift a little. An external RTC module (e.g. DS3231) can
-be added later in `System_GetLocalTime()` (`src/System.cpp`) without touching anything else.
+goes weeks without WiFi the unlock hour may shift a little. Both problems go away with a DS3231
+real-time clock module, see [rtc-ds3231.md](rtc-ds3231.md).

@@ -23,6 +23,7 @@
 #include "Rfid.h"
 #include "RfidConfig.h"
 #include "RotaryEncoder.h"
+#include "Rtc.h"
 #include "SdCard.h"
 #include "System.h"
 #include "Web.h"
@@ -173,6 +174,12 @@ void setup() {
 	// print SD card info
 	SdCard_PrintInfo();
 
+	// Time zone first, then the external RTC: it sets the system clock before anything (RFID, WiFi)
+	// may need the date. Needs I2C and the peripheral power, which may feed the module.
+	setenv("TZ", timeZone, 1);
+	tzset();
+	Rtc_Init();
+
 	Ftp_Init();
 	if (!pn5180LpcdEnabled) {
 		Rfid_Init();
@@ -201,9 +208,7 @@ void setup() {
 	}
 	Log_Printf(LOGLEVEL_DEBUG, "Flash-size: %u bytes", ESP.getFlashChipSize());
 
-	// setup timezone & show internal RTC date/time if available
-	setenv("TZ", timeZone, 1);
-	tzset();
+	// show internal RTC date/time if available (time zone was set before Rtc_Init())
 	struct tm timeinfo;
 	if (getLocalTime(&timeinfo, 5)) {
 		static char timeStringBuff[255];

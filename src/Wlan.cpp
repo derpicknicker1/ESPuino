@@ -9,6 +9,7 @@
 #include "Mqtt.h"
 #include "Queues.h"
 #include "RotaryEncoder.h"
+#include "Rtc.h"
 #include "System.h"
 #include "Web.h"
 #include "esp_mac.h"
@@ -502,6 +503,8 @@ void ntpTimeAvailable(struct timeval *t) {
 		Log_Println(timeStringBuff, LOGLEVEL_NOTICE);
 		free(timeStringBuff);
 	}
+	// back up the fresh time in the DS3231 (if there is one), so it survives a power cut
+	Rtc_SetFromSystemClock();
 	// set ESPuino's very first start date
 	if (!gPrefsSettings.isKey("firstStart")) {
 		gPrefsSettings.putULong("firstStart", t->tv_sec);
