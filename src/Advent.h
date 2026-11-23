@@ -1,8 +1,9 @@
 #pragma once
 
+#include <Arduino.h>
+
 #include "Playlist.h"
 
-#include <Arduino.h>
 #include <time.h>
 
 // Advent calendar (playmode ADVENT_CALENDAR): one RFID tag, assigned to a folder, plays a different
