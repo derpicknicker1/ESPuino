@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Arduino.h>
+
 #include <time.h>
 
 // External real-time clock DS3231 on the second I2C bus (i2cBusTwo, address 0x68). Detected
